@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>poems</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg: #f5f0e8;
+      --text: #2e1f0f;
+      --text-muted: #7a6147;
+      --rule: #c8b89a;
+      --player-bg: #ede5d5;
+    }
+
+    html {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 18px;
+      line-height: 1.7;
+    }
+
+    body {
+      min-height: 100vh;
+      padding: 80px 24px 120px;
+      max-width: 680px;
+      margin: 0 auto;
+    }
+
+    header {
+      margin-bottom: 72px;
+      opacity: 0;
+      animation: fadein 1.2s ease forwards;
+    }
+
+    header p {
+      font-size: 0.78rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 300;
+    }
+
+    .poem-list {
+      list-style: none;
+    }
+
+    .poem-item {
+      border-top: 1px solid var(--rule);
+      opacity: 0;
+      animation: fadein 0.8s ease forwards;
+    }
+
+    .poem-item:last-child {
+      border-bottom: 1px solid var(--rule);
+    }
+
+    /* stagger */
+    .poem-item:nth-child(1)  { animation-delay: 0.15s; }
+    .poem-item:nth-child(2)  { animation-delay: 0.22s; }
+    .poem-item:nth-child(3)  { animation-delay: 0.29s; }
+    .poem-item:nth-child(4)  { animation-delay: 0.36s; }
+    .poem-item:nth-child(5)  { animation-delay: 0.43s; }
+    .poem-item:nth-child(6)  { animation-delay: 0.50s; }
+    .poem-item:nth-child(7)  { animation-delay: 0.57s; }
+    .poem-item:nth-child(8)  { animation-delay: 0.64s; }
+    .poem-item:nth-child(9)  { animation-delay: 0.71s; }
+    .poem-item:nth-child(10) { animation-delay: 0.78s; }
+    .poem-item:nth-child(11) { animation-delay: 0.85s; }
+
+    .poem-toggle {
+      width: 100%;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 24px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      text-align: left;
+      color: var(--text);
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 1.05rem;
+      font-weight: 400;
+      letter-spacing: 0.01em;
+      gap: 16px;
+      transition: color 0.2s ease;
+    }
+
+    .poem-toggle:hover {
+      color: var(--text-muted);
+    }
+
+    .poem-toggle .arrow {
+      width: 14px;
+      height: 14px;
+      flex-shrink: 0;
+      position: relative;
+      transition: transform 0.35s ease;
+    }
+
+    .poem-toggle .arrow::before,
+    .poem-toggle .arrow::after {
+      content: '';
+      position: absolute;
+      background: currentColor;
+      border-radius: 2px;
+    }
+
+    .poem-toggle .arrow::before {
+      width: 1px;
+      height: 14px;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      transition: opacity 0.3s ease;
+    }
+
+    .poem-toggle .arrow::after {
+      width: 14px;
+      height: 1px;
+      top: 50%;
+      left: 0;
+      transform: translateY(-50%);
+    }
+
+    .poem-item.open .poem-toggle .arrow {
+      transform: rotate(45deg);
+    }
+
+    .poem-body {
+      display: grid;
+      grid-template-rows: 0fr;
+      transition: grid-template-rows 0.45s ease;
+    }
+
+    .poem-item.open .poem-body {
+      grid-template-rows: 1fr;
+    }
+
+    .poem-body-inner {
+      overflow: hidden;
+    }
+
+    .poem-content {
+      padding-bottom: 36px;
+    }
+
+    .poem-text {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1rem;
+      font-weight: 300;
+      font-style: italic;
+      line-height: 1.9;
+      color: var(--text);
+      white-space: pre-line;
+      margin-bottom: 28px;
+    }
+
+    /* Audio player */
+    .audio-wrap {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      background: var(--player-bg);
+      padding: 14px 18px;
+      border-radius: 2px;
+    }
+
+    .play-btn {
+      background: none;
+      border: 1px solid var(--text);
+      border-radius: 50%;
+      width: 36px;
+      height: 36px;
+      flex-shrink: 0;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s, color 0.2s;
+      color: var(--text);
+    }
+
+    .play-btn:hover {
+      background: var(--text);
+      color: var(--bg);
+    }
+
+    .play-btn svg {
+      display: block;
+      width: 12px;
+      height: 12px;
+      fill: currentColor;
+    }
+
+    .scrubber-wrap {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .scrubber {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 1px;
+      background: var(--rule);
+      outline: none;
+      cursor: pointer;
+      accent-color: var(--text);
+    }
+
+    .scrubber::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--text);
+      cursor: pointer;
+    }
+
+    .time-display {
+      font-size: 0.68rem;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 300;
+    }
+
+    footer {
+      margin-top: 96px;
+      font-size: 0.72rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      opacity: 0;
+      animation: fadein 1s ease 1.1s forwards;
+    }
+
+    @keyframes fadein {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <p>poems for you</p>
+  </header>
+
+  <ul class="poem-list" id="poemList"></ul>
+
+  <footer>
+    <p>for mafe</p>
+  </footer>
+
+  <script>
+    const poems = [
+      {
+        title: "mi cariño",
+        text: `Place your poem text here.\nLine by line,\nas you wrote it.`,
+        audio: "audio/mi-carino.mp3"
+      },
+      {
+        title: "a distant nearness",
+        text: `Place your poem text here.\nLine by line,\nas you wrote it.`,
+        audio: "audio/a-distant-nearness.mp3"
+      },
+      {
+        title: "ma chérie",
+        text: `Place your poem text here.\nLine by line,\nas you wrote it.`,
+        audio: "audio/ma-cherie.mp3"
+      },
+      {
+        title: "mi amor",
+        text: `Place your poem text here.\nLine by line,\nas you wrote it.`,
+        audio: "audio/mi-amor.mp3"
+      },
+      {
+        title: "our love – 2nd anniversary",
+        text: `Place your poem text here.\nLine by line,\nas you wrote it.`,
+        audio: "audio/our-love-2nd-anniversary.mp3"
+      },
+      {
+        title: "valentine's 24",
+        text: `Place your poem text here.\nLine by line,\nas you wrote it.`,
+        audio: "audio/valentines-24.mp3"
+      },
+      {
+        title: "anniversary 3",
+        text: `Place your poem text here.\nLine by line,\nas you wrote it.`,
+        audio: "audio/anniversary-3.mp3"
+      },
+      {
+        title: "vday 25",
+        text: `Place your poem text here.\nLine by line,\nas you wrote it.`,
+        audio: "audio/vday-25.mp3"
+      },
+      {
+        title: "the snow is swaying down",
+        text: `Place your poem text here.\nLine by line,\nas you wrote it.`,
+        audio: "audio/the-snow-is-swaying-down.mp3"
+      },
+      {
+        title: "year 4",
+        text: `Place your poem text here.\nLine by line,\nas you wrote it.`,
+        audio: "audio/year-4.mp3"
+      },
+      {
+        title: "poem (2)5",
+        text: `Place your poem text here.\nLine by line,\nas you wrote it.`,
+        audio: "audio/poem-25.mp3"
+      }
+    ];
+
+    const list = document.getElementById('poemList');
+
+    poems.forEach((poem, i) => {
+      const li = document.createElement('li');
+      li.className = 'poem-item';
+
+      li.innerHTML = `
+        <button class="poem-toggle" aria-expanded="false">
+          <span>${poem.title}</span>
+          <span class="arrow" aria-hidden="true"></span>
+        </button>
+        <div class="poem-body">
+          <div class="poem-body-inner">
+            <div class="poem-content">
+              <p class="poem-text">${poem.text}</p>
+              <div class="audio-wrap">
+                <button class="play-btn" aria-label="Play">
+                  <svg viewBox="0 0 10 12" xmlns="http://www.w3.org/2000/svg">
+                    <path class="play-icon" d="M0 0 L10 6 L0 12 Z"/>
+                  </svg>
+                </button>
+                <div class="scrubber-wrap">
+                  <input type="range" class="scrubber" min="0" max="100" value="0" step="0.1" />
+                  <span class="time-display">0:00 / 0:00</span>
+                </div>
+                <audio src="${poem.audio}" preload="none"></audio>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+
+      const toggle = li.querySelector('.poem-toggle');
+      const playBtn = li.querySelector('.play-btn');
+      const audio = li.querySelector('audio');
+      const scrubber = li.querySelector('.scrubber');
+      const timeDisplay = li.querySelector('.time-display');
+      const playIcon = li.querySelector('.play-icon');
+
+      const pausePath = 'M1 0 H4 V12 H1 Z M6 0 H9 V12 H6 Z';
+      const playPath = 'M0 0 L10 6 L0 12 Z';
+
+      toggle.addEventListener('click', () => {
+        const isOpen = li.classList.toggle('open');
+        toggle.setAttribute('aria-expanded', isOpen);
+      });
+
+      playBtn.addEventListener('click', () => {
+        if (audio.paused) {
+          // pause all others
+          document.querySelectorAll('audio').forEach(a => {
+            if (a !== audio) {
+              a.pause();
+              const icon = a.closest('.audio-wrap').querySelector('.play-icon');
+              if (icon) icon.setAttribute('d', playPath);
+            }
+          });
+          audio.play();
+          playIcon.setAttribute('d', pausePath);
+        } else {
+          audio.pause();
+          playIcon.setAttribute('d', playPath);
+        }
+      });
+
+      audio.addEventListener('ended', () => {
+        playIcon.setAttribute('d', playPath);
+        scrubber.value = 0;
+      });
+
+      audio.addEventListener('timeupdate', () => {
+        if (audio.duration) {
+          scrubber.value = (audio.currentTime / audio.duration) * 100;
+          timeDisplay.textContent = `${fmt(audio.currentTime)} / ${fmt(audio.duration)}`;
+        }
+      });
+
+      audio.addEventListener('loadedmetadata', () => {
+        timeDisplay.textContent = `0:00 / ${fmt(audio.duration)}`;
+      });
+
+      scrubber.addEventListener('input', () => {
+        if (audio.duration) {
+          audio.currentTime = (scrubber.value / 100) * audio.duration;
+        }
+      });
+
+      list.appendChild(li);
+    });
+
+    function fmt(s) {
+      const m = Math.floor(s / 60);
+      const sec = Math.floor(s % 60).toString().padStart(2, '0');
+      return `${m}:${sec}`;
+    }
+  </script>
+</body>
+</html>
